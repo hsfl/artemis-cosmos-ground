@@ -102,19 +102,58 @@ void handle_cmd()
       return;
     }
 
-    // Store data
-    if (args.size() > 3)
+    String switch_name(args[3].c_str());
+    switch_name = switch_name.toLowerCase();
+    switch (packet.header.type)
     {
-      for (size_t i = 3; i < args.size(); i++)
+    case PacketComm::TypeId::CommandEpsSwitchName:
+    {
+      if (args.size() < 5)
       {
-        for (size_t j = 0; j < args[i].size(); j++)
-        {
-          packet.data.push_back(args[i][j]);
-        }
-        if (i != args.size() - 1)
-          packet.data.push_back(' ');
+        Serial.println("Inncorrect command, usage: EpsSwitchName <switch name> 1|0");
+        return;
+      }
+      if (PDUType.find(switch_name.c_str()) != PDUType.end())
+      {
+        packet.data.push_back((uint8_t)PDUType.find(switch_name.c_str())->second);
+      }
+      else
+      {
+        Serial.println("Incorrect command, usage: EpsSwitchName <switch name> 1|0");
+        return;
+      }
+      if (args[4] == "1")
+      {
+        packet.data.push_back((uint8_t)1);
+      }
+      else if (args[4] == "0")
+      {
+        packet.data.push_back((uint8_t)0);
+      }
+      else
+      {
+        Serial.println("Incorrect command, usage: EpsSwitchName <switch name> 1|0");
+        return;
       }
     }
+
+    break;
+    default:
+      break;
+    }
+    // Store data
+    // if (args.size() > 3)
+    // {
+    //   for (size_t i = 3; i < args.size(); i++)
+    //   {
+    //     for (size_t j = 0; j < args[i].size(); j++)
+    //     {
+    //       packet.data.push_back(args[i][j]);
+    //     }
+    //     if (i != args.size() - 1)
+    //       packet.data.push_back(' ');
+    //   }
+    // }
 
     // Send to ground station radio
     radio_out = radio_out.toLowerCase();

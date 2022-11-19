@@ -18,6 +18,7 @@ void Artemis::Teensy::Channels::rfm23_channel()
             switch (packet.header.type)
             {
             case PacketComm::TypeId::CommandPing:
+            case PacketComm::TypeId::CommandEpsSwitchName:
             {
                 rfm23.send(packet);
                 threads.delay(500);
