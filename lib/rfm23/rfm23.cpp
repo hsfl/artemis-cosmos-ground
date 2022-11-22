@@ -96,6 +96,7 @@ namespace Artemis
                     wait_time = 100;
                 if (rfm23.waitAvailableTimeout(wait_time))
                 {
+                    packet.wrapped.resize(0);
                     packet.wrapped.resize(RH_RF22_MAX_MESSAGE_LEN);
                     uint8_t bytes_recieved = packet.wrapped.size();
                     if (rfm23.recv(packet.wrapped.data(), &bytes_recieved))

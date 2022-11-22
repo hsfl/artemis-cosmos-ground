@@ -4,8 +4,19 @@
 #include <TeensyThreads.h>
 #include <support/packetcomm.h>
 #include <support/configCosmosKernel.h>
+#include <ArduinoJson.h>
 
 #define MAXQUEUESIZE 50
+
+// Sensor Defs
+#define ARTEMIS_CURRENT_BEACON_1_COUNT 2
+#define ARTEMIS_CURRENT_SENSOR_COUNT 5
+#define ARTEMIS_TEMP_SENSOR_COUNT 7
+#define AREF_VOLTAGE 3.3
+
+extern const char *current_sen_names[ARTEMIS_CURRENT_SENSOR_COUNT];
+extern const char *temp_sen_names[ARTEMIS_TEMP_SENSOR_COUNT];
+
 
 // Nodes
 enum NODES : uint8_t

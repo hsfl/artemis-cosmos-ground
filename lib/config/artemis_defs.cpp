@@ -1,5 +1,8 @@
 #include <artemis_defs.h>
 
+const char *current_sen_names[ARTEMIS_CURRENT_SENSOR_COUNT] = {"solar_panel_1", "solar_panel_2", "solar_panel_3", "solar_panel_4", "battery_board"};
+const char *temp_sen_names[ARTEMIS_TEMP_SENSOR_COUNT] = {"obc", "pdu", "battery board", "solar pannel 1", "solar panel 2", "solar panel 3", "solar panel 4"};
+
 vector<struct thread_struct> thread_list;
 
 std::map<string, NODES> NodeType = {
