@@ -15,10 +15,10 @@ namespace
   PacketComm packet;
 
   // Ethernet
-  byte mac[] = {0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02};
-  IPAddress remoteIp(192, 168, 150, 197); // Edit this to the IP of your computer runing COSMOS Web
-  unsigned short remotePort = 65535;
-  unsigned short localPort = 65535;
+  byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+  IPAddress remoteIp(192, 168, 150, 174); // Edit this to the IP of your computer runing COSMOS Web
+  unsigned short remotePort = 10095;
+  unsigned short localPort = 10095;
   EthernetUDP udp;
 }
 
@@ -75,8 +75,12 @@ void loop()
         Serial.println("Recieved Current Beacon 2");
         currentbeacon2 beacon2;
         memcpy(&beacon2, packet.data.data(), sizeof(beacon2));
-        doc["time"] = beacon2.deci;
-        Serial.println(beacon2.deci);
+        for (int i = 2; i < ARTEMIS_CURRENT_SENSOR_COUNT; i++)
+        {
+          JsonObject current2 = doc.createNestedObject(current_sen_names[i]);
+          current2["vol"] = beacon2.busvoltage[i];
+          current2["cur"] = beacon2.current[i];
+        }
         break;
       }
       case TypeId::temperature:
@@ -85,7 +89,11 @@ void loop()
         temperaturebeacon beacon;
         memcpy(&beacon, packet.data.data(), sizeof(beacon));
         doc["time"] = beacon.deci;
-        Serial.println(beacon.deci);
+        for (int i = 0; i < ARTEMIS_TEMP_SENSOR_COUNT; i++)
+        {
+          JsonObject temperature = doc.createNestedObject(temp_sen_names[i]);
+          temperature["celsius"] = beacon.temperatureC[i];
+        }
         break;
       }
       case TypeId::imu:
@@ -94,7 +102,19 @@ void loop()
         imubeacon beacon;
         memcpy(&beacon, packet.data.data(), sizeof(beacon));
         doc["time"] = beacon.deci;
-        Serial.println(beacon.deci);
+
+        JsonObject imu_temp = doc.createNestedObject("temp");
+        imu_temp["temp"] = beacon.imutemp;
+
+        JsonObject imu = doc.createNestedObject("imu");
+        imu["accelx"] = beacon.accelx;
+        imu["accely"] = (beacon.accely);
+        imu["accelz"] = (beacon.accelz);
+
+        imu["gyrox"] = (beacon.gyrox);
+        imu["gyrox"] = (beacon.gyroy);
+        imu["gyrox"] = (beacon.gyroz);
+
         break;
       }
       case TypeId::mag:
@@ -103,13 +123,16 @@ void loop()
         magbeacon beacon;
         memcpy(&beacon, packet.data.data(), sizeof(beacon));
         doc["time"] = beacon.deci;
-        Serial.println(beacon.deci);
+
+        JsonObject mag = doc.createNestedObject("mag");
+        mag["magx"] = (beacon.magx);
+        mag["magy"] = (beacon.magy);
+        mag["magz"] = (beacon.magz);
+
         break;
       }
       default:
-      {
-        Serial.println("invalid type");
-      }
+        break;
       }
       // Send UDP packet
       udp.beginPacket(remoteIp, remotePort);
@@ -119,7 +142,7 @@ void loop()
       break;
     }
     default:
-      Serial.println("invalid packet type");
+      break;
     }
   }
 }
