@@ -52,7 +52,7 @@ void loop()
 
     switch (packet.header.type)
     {
-    case PacketComm::TypeId::DataBeacon:
+    case PacketComm::TypeId::DataObcBeacon:
     {
       switch ((TypeId)packet.data[0])
       {
@@ -172,12 +172,12 @@ void handle_cmd()
     packet.wrapped.resize(0);
 
     // Set origin
-    packet.header.orig = NODES::GROUND_NODE_ID;
+    packet.header.nodeorig = NODES::GROUND_NODE_ID;
 
     // Get destination
     if (NodeType.find(args[0]) != NodeType.end())
     {
-      packet.header.dest = NodeType.find(args[0])->second;
+      packet.header.nodedest = NodeType.find(args[0])->second;
     }
     else
     {
@@ -199,7 +199,7 @@ void handle_cmd()
     radio_in = radio_in.toLowerCase();
     if (RadioType.find(radio_in.c_str()) != RadioType.end())
     {
-      packet.header.radio = RadioType.find(radio_in.c_str())->second;
+      //packet.header.radio = RadioType.find(radio_in.c_str())->second;
     }
     else
     {

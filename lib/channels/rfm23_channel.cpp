@@ -17,9 +17,9 @@ void Artemis::Teensy::Channels::rfm23_channel()
         {
             switch (packet.header.type)
             {
-            case PacketComm::TypeId::CommandPing:
+            case PacketComm::TypeId::CommandObcPing:
             case PacketComm::TypeId::CommandEpsSwitchName:
-            case PacketComm::TypeId::CommandSendBeacon:
+            case PacketComm::TypeId::CommandObcSendBeacon:
             {
                 rfm23.send(packet);
                 threads.delay(500);
