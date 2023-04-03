@@ -17,7 +17,6 @@
 extern const char *current_sen_names[ARTEMIS_CURRENT_SENSOR_COUNT];
 extern const char *temp_sen_names[ARTEMIS_TEMP_SENSOR_COUNT];
 
-
 // Nodes
 enum NODES : uint8_t
 {
@@ -32,7 +31,7 @@ extern std::map<string, NODES> NodeType;
 struct thread_struct
 {
   int thread_id;
-  const char *thread_name;
+  uint8_t channel_id;
 };
 
 // Enums
@@ -81,14 +80,6 @@ enum TEENSY_PINS
   A16_UNUSED,
   AIN2
 };
-
-enum ARTEMIS_RADIOS : uint8_t
-{
-  NONE,
-  RFM23,
-};
-
-extern std::map<string, ARTEMIS_RADIOS> RadioType;
 
 enum PDU_CMD : uint8_t
 {

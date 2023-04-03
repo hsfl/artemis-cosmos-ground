@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 #include <string.h>
-#include <artemis_channels.h>
+#include "channels/artemis_channels.h"
 #include <support/configCosmosKernel.h>
 #include <artemisbeacons.h>
 
@@ -11,6 +11,8 @@ void handle_cmd();
 
 namespace
 {
+  using namespace Artemis::Teensy;
+
   char buf[256];
   PacketComm packet;
 
@@ -28,17 +30,17 @@ void setup()
   while (!Serial)
     continue;
 
-  Serial.println("Initializing Ethernet...");
-  if (Ethernet.begin(mac) == 0)
-  {
-    Serial.println("Ethernet not connected");
-  }
-  udp.begin(localPort);
+  // Serial.println("Initializing Ethernet...");
+  // if (Ethernet.begin(mac) == 0)
+  // {
+  //   Serial.println("Ethernet not connected");
+  // }
+  // udp.begin(localPort);
 
   threads.setSliceMillis(10);
 
   // Threads
-  thread_list.push_back({threads.addThread(Artemis::Teensy::Channels::rfm23_channel), "rfm23 thread"});
+  thread_list.push_back({threads.addThread(Channels::rfm23_channel, 9000), Channels::Channel_ID::RFM23_CHANNEL});
 }
 
 void loop()
@@ -161,9 +163,9 @@ void handle_cmd()
       args.push_back(string(token));
     }
 
-    if (args.size() < 3)
+    if (args.size() < 2)
     {
-      Serial.println("COMMAND SYNTAX: <node_dest> <radio_out>:<radio_in> <command> [data]");
+      Serial.println("COMMAND SYNTAX: <node_dest> <command> [data]");
       return;
     }
 
@@ -185,34 +187,12 @@ void handle_cmd()
       return;
     }
 
-    // Parse radio_out and radio_in
-    if (args[1].find(':') == string::npos)
-    {
-      Serial.println("Invalid radio argument format: <radio_out>:<radio_in>");
-      return;
-    }
-    const char *radios = args[1].c_str();
-    char *radio_arg = strtok((char *)radios, ":");
-    String radio_out(radio_arg);
-    radio_arg = strtok(NULL, "");
-    String radio_in(radio_arg);
-    radio_in = radio_in.toLowerCase();
-    if (RadioType.find(radio_in.c_str()) != RadioType.end())
-    {
-      //packet.header.radio = RadioType.find(radio_in.c_str())->second;
-    }
-    else
-    {
-      sprintf(buf, "Invalid radio_in: %s", radio_in.c_str());
-      Serial.println(buf);
-      memset(buf, 0, sizeof(buf));
-      return;
-    }
+    packet.header.chanin = Artemis::Teensy::Channels::Channel_ID::RFM23_CHANNEL;
 
     // Parse command
-    if (packet.StringType.find(args[2]) != packet.StringType.end())
+    if (packet.StringType.find(args[1]) != packet.StringType.end())
     {
-      packet.header.type = packet.StringType.find(args[2])->second;
+      packet.header.type = packet.StringType.find(args[1])->second;
     }
     else
     {
@@ -224,12 +204,12 @@ void handle_cmd()
     {
     case PacketComm::TypeId::CommandEpsSwitchName:
     {
-      if (args.size() < 5)
+      if (args.size() < 4)
       {
-        Serial.println("Inncorrect command, usage: EpsSwitchName <switch name> 1|0");
+        Serial.println("Incorrect command, usage: EpsSwitchName <switch name> 1|0");
         return;
       }
-      String switch_name(args[3].c_str());
+      String switch_name(args[2].c_str());
       switch_name = switch_name.toLowerCase();
       if (PDUType.find(switch_name.c_str()) != PDUType.end())
       {
@@ -240,11 +220,11 @@ void handle_cmd()
         Serial.println("Incorrect command, usage: EpsSwitchName <switch name> 1|0");
         return;
       }
-      if (args[4] == "1")
+      if (args[3] == "1")
       {
         packet.data.push_back((uint8_t)1);
       }
-      else if (args[4] == "0")
+      else if (args[3] == "0")
       {
         packet.data.push_back((uint8_t)0);
       }
@@ -255,7 +235,6 @@ void handle_cmd()
       }
       break;
     }
-
     default:
       break;
     }
@@ -273,20 +252,7 @@ void handle_cmd()
     //   }
     // }
 
-    // Send to ground station radio
-    radio_out = radio_out.toLowerCase();
-    if (RadioType.find(radio_out.c_str()) != RadioType.end())
-    {
-      PushQueue(packet, rfm23_queue, rfm23_queue_mtx);
-    }
-    else
-    {
-      sprintf(buf, "Invalid radio_out: %s", radio_out.c_str());
-      Serial.println(buf);
-      memset(buf, 0, sizeof(buf));
-      return;
-    }
-
+    PushQueue(packet, rfm23_queue, rfm23_queue_mtx);
     Serial.println("Command sent to radio. Waiting to send...");
   }
 }
