@@ -33,15 +33,16 @@ void Artemis::Teensy::Channels::rfm23_channel()
     {
         if (PullQueue(packet, rfm23_queue, rfm23_queue_mtx))
         {
+            Serial.println((uint16_t)packet.header.type);
             switch (packet.header.type)
             {
-            case PacketComm::TypeId::DataObcBeacon:
-            case PacketComm::TypeId::DataObcPong:
-            case PacketComm::TypeId::DataEpsResponse:
-            case PacketComm::TypeId::DataRadioResponse:
-            case PacketComm::TypeId::DataAdcsResponse:
-            case PacketComm::TypeId::DataObcResponse:
+            case PacketComm::TypeId::CommandObcPing:
+            case PacketComm::TypeId::CommandCameraCapture:
+            case PacketComm::TypeId::CommandEpsSwitchNames:
+            case PacketComm::TypeId::CommandEpsSwitchStatus:
+            case PacketComm::TypeId::CommandObcSendBeacon:
             {
+                Serial.println("sending...");
                 rfm23.send(packet);
                 threads.delay(500);
                 break;
