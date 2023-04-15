@@ -12,7 +12,6 @@
 #define ARTEMIS_CURRENT_BEACON_1_COUNT 2
 #define ARTEMIS_CURRENT_SENSOR_COUNT 5
 #define ARTEMIS_TEMP_SENSOR_COUNT 7
-#define AREF_VOLTAGE 3.3
 
 extern const char *current_sen_names[ARTEMIS_CURRENT_SENSOR_COUNT];
 extern const char *temp_sen_names[ARTEMIS_TEMP_SENSOR_COUNT];
@@ -45,7 +44,7 @@ enum TEENSY_PINS
   T_GPIO5,
   T_GPIO6,
   RADIO_RESET,
-  NIRQ,
+  UART6_RX,
   T_CS1,
   T_CS,
   SPI0_MOSI,
@@ -77,7 +76,7 @@ enum TEENSY_PINS
   SDN,
   SPI1_CS1,
   SPI1_D0,
-  A16_UNUSED,
+  NIRQ,
   AIN2
 };
 

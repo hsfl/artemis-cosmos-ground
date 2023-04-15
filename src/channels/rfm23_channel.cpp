@@ -33,7 +33,6 @@ void Artemis::Teensy::Channels::rfm23_channel()
     {
         if (PullQueue(packet, rfm23_queue, rfm23_queue_mtx))
         {
-            Serial.println((uint16_t)packet.header.type);
             switch (packet.header.type)
             {
             case PacketComm::TypeId::CommandObcPing:
@@ -58,20 +57,20 @@ void Artemis::Teensy::Channels::rfm23_channel()
         if (rfm23.recv(packet, (uint16_t)timeout) >= 0)
         {
             Serial.print("[RFM23] RECEIVED: [");
-            for (size_t i = 0; i < packet.data.size(); i++)
+            for (size_t i = 0; i < packet.wrapped.size(); i++)
             {
-                Serial.print(packet.data[i], HEX);
+                Serial.print(packet.wrapped[i], HEX);
             }
             Serial.println("]");
             PushQueue(packet, main_queue, main_queue_mtx);
         }
 
-        if (telem > 10000)
-        {
-            Serial.print("[RFM23] TSEN = ");
-            Serial.println(rfm23.get_tsen());
-            telem = 0;
-        }
+        // if (telem > 10000)
+        // {
+        //     Serial.print("[RFM23] TSEN = ");
+        //     Serial.println(rfm23.get_tsen());
+        //     telem = 0;
+        // }
 
         threads.delay(10);
     }

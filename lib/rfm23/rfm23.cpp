@@ -10,7 +10,7 @@ namespace Artemis
 
             int32_t RFM23::init(rfm23_config cfg, Threads::Mutex *mtx)
             {
-                Serial.println("[RFM23] Initializing ...");
+                Serial.println("Radio initializing...");
                 config = cfg;
                 spi_mtx = mtx;
 
@@ -27,7 +27,7 @@ namespace Artemis
                     if (timeout > 10000)
                     {
 
-                        Serial.println("[RFM23] INIT FAILED");
+                        Serial.println("Radio failed to initialize");
                         return -1;
                     }
                 }
@@ -48,13 +48,13 @@ namespace Artemis
                 {
                     if (timeout > 10000)
                     {
-                        Serial.println("[RFM23] SET FSK MODULATION FAILED");
+                        Serial.println("Radio failed to set FSK modulation");
                         return -1;
                     }
                 }
                 rfm23.sleep();
 
-                Serial.println("[RFM23] INIT SUCCESS");
+                Serial.println("Radio initialized");
                 rfm23.setModeIdle();
                 return 0;
             }
@@ -77,17 +77,26 @@ namespace Artemis
                 iretn = packet.Wrap();
                 if (iretn < 0)
                 {
-                    Serial.println("Unwrap fail");
+                    Serial.println("Wrap fail");
+                    return -1;
+                }
+                if (packet.wrapped.size() > RH_RF22_MAX_MESSAGE_LEN)
+                {
+                    Serial.println("[RFM23] oversize");
+                    return COSMOS_GENERAL_ERROR_OVERSIZE;
+                }
+                Threads::Scope lock(*spi_mtx);
+                rfm23.send(packet.wrapped.data(), packet.wrapped.size());
+                iretn = rfm23.waitPacketSent(1000);
+
+                if (iretn == false)
+                {
                     return -1;
                 }
 
-                Threads::Scope lock(*spi_mtx);
-                rfm23.send(packet.wrapped.data(), packet.wrapped.size());
-                rfm23.waitPacketSent(100);
-
                 rfm23.sleep();
                 rfm23.setModeIdle();
-                Serial.print("[RFM23] SENDING: [");
+                Serial.print("Radio Sending: [");
                 for (size_t i = 0; i < packet.wrapped.size(); i++)
                 {
                     Serial.print(packet.wrapped[i], HEX);
@@ -118,7 +127,7 @@ namespace Artemis
 
                         if (iretn < 0)
                         {
-                            Serial.println("got something, but not packetcomm");
+                            Serial.println("Data received, but not in packetcomm format");
                             return -1;
                         }
 
