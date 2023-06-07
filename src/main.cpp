@@ -18,7 +18,7 @@ namespace
 
   uint8_t mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
-  const IPAddress remoteIP(192, 168, 157, 228);
+  const IPAddress remoteIP(192, 168, 150, 195); // EDIT THIS TO YOUR COMPUTER'S IP ADDRESS
   const unsigned int remotePort = 10095;
 
   EthernetUDP udp;
@@ -27,8 +27,6 @@ namespace
 void setup()
 {
   Serial.begin(115200);
-  while (!Serial)
-    continue;
 
   Ethernet.begin(mac);
   delay(1000);

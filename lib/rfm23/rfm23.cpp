@@ -10,6 +10,7 @@ namespace Artemis
 
             int32_t RFM23::init(rfm23_config cfg, Threads::Mutex *mtx)
             {
+                Serial.println("Radio initializing");
                 config = cfg;
                 spi_mtx = mtx;
 
